@@ -1,0 +1,126 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "CI.####",
+ "creation": "2022-07-21 18:34:27.273046",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "payroll_date",
+  "contractor",
+  "total_man_days",
+  "total_over_time",
+  "man_days_rate",
+  "travel_allowance_rate",
+  "mandays_amount",
+  "column_break_8",
+  "travel_allowance_amount",
+  "total_ctc",
+  "taxable_amount",
+  "cgst_amount",
+  "sgst_amount",
+  "total_amount",
+  "total_amount_in_words"
+ ],
+ "fields": [
+  {
+   "fieldname": "payroll_date",
+   "fieldtype": "Date",
+   "label": "Payroll Date"
+  },
+  {
+   "fieldname": "contractor",
+   "fieldtype": "Link",
+   "label": "Contractor",
+   "options": "Contractor"
+  },
+  {
+   "fieldname": "total_man_days",
+   "fieldtype": "Int",
+   "label": "Total Man Days"
+  },
+  {
+   "fieldname": "total_over_time",
+   "fieldtype": "Float",
+   "label": "Total Over Time"
+  },
+  {
+   "fieldname": "man_days_rate",
+   "fieldtype": "Currency",
+   "label": "Man Days Rate"
+  },
+  {
+   "fieldname": "travel_allowance_rate",
+   "fieldtype": "Currency",
+   "label": "Travel Allowance Rate"
+  },
+  {
+   "fieldname": "mandays_amount",
+   "fieldtype": "Currency",
+   "label": "Mandays Amount"
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "travel_allowance_amount",
+   "fieldtype": "Currency",
+   "label": "Travel Allowance Amount"
+  },
+  {
+   "fieldname": "total_ctc",
+   "fieldtype": "Currency",
+   "label": "Total CTC"
+  },
+  {
+   "fieldname": "taxable_amount",
+   "fieldtype": "Currency",
+   "label": "Taxable Amount"
+  },
+  {
+   "fieldname": "cgst_amount",
+   "fieldtype": "Currency",
+   "label": "CGST Amount"
+  },
+  {
+   "fieldname": "sgst_amount",
+   "fieldtype": "Currency",
+   "label": "SGST Amount"
+  },
+  {
+   "fieldname": "total_amount",
+   "fieldtype": "Currency",
+   "label": "Total Amount"
+  },
+  {
+   "fieldname": "total_amount_in_words",
+   "fieldtype": "Data",
+   "label": "Total Amount In Words"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-11-23 22:19:25.291958",
+ "modified_by": "Administrator",
+ "module": "JMI",
+ "name": "Contractor Invoice",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}
