@@ -115,7 +115,6 @@ def get_data(filters):
         for date in dates:
             att = frappe.db.get_value("Attendance",{'attendance_date':date,'employee':emp.name},['status','in_time','out_time','shift','employee','attendance_date','name','over_time_hours','total_working_hours']) or ''
             if att:
-                frappe.errprint(type(att[1]))
                 status = status_map.get(att[0], "")
                
 
@@ -201,7 +200,6 @@ def get_data(filters):
                 # frappe.errprint('No Present')
                 # doj =frappe.db.get_value("Employee",{'name':emp},'date_of_joining')
                 hh = check_holiday(date,emp.name)
-                frappe.errprint(hh)
                 if hh :
                     if hh == 'WW': 
                         total_weekoff += 1
@@ -245,9 +243,7 @@ def get_data(filters):
 
 def get_dates(from_date,to_date):
     no_of_days = date_diff(add_days(to_date, 1), from_date)
-    frappe.errprint(no_of_days)
     dates = [add_days(from_date, i) for i in range(0, no_of_days)]
-    frappe.errprint(dates)
 
     return dates
 
