@@ -1,0 +1,191 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "ATR.####",
+ "creation": "2023-01-30 13:23:33.990463",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "employee",
+  "branch",
+  "contractor",
+  "designation",
+  "column_break_5",
+  "attendance_date",
+  "attendance_details_section",
+  "shift",
+  "attendance_marked",
+  "status",
+  "first_in_time",
+  "last_out_time",
+  "total_working_hours",
+  "overtime_hours",
+  "column_break_13",
+  "corrected_status",
+  "corrected_in_time",
+  "corrected_out_time",
+  "corrected_total_working_hours",
+  "corrected_overtime_hours",
+  "attach_proof",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Employee",
+   "options": "Employee"
+  },
+  {
+   "fetch_from": "employee.branch",
+   "fieldname": "branch",
+   "fieldtype": "Data",
+   "label": "Branch"
+  },
+  {
+   "fetch_from": "employee.contractor",
+   "fieldname": "contractor",
+   "fieldtype": "Data",
+   "label": "Contractor"
+  },
+  {
+   "fetch_from": "employee.designation",
+   "fieldname": "designation",
+   "fieldtype": "Data",
+   "label": "Designation"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "attendance_date",
+   "fieldtype": "Date",
+   "in_standard_filter": 1,
+   "label": "Attendance Date"
+  },
+  {
+   "fieldname": "attendance_details_section",
+   "fieldtype": "Section Break",
+   "label": "Attendance Details"
+  },
+  {
+   "fieldname": "shift",
+   "fieldtype": "Data",
+   "label": "Shift",
+   "read_only": 1
+  },
+  {
+   "fieldname": "first_in_time",
+   "fieldtype": "Data",
+   "label": "First In Time",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_out_time",
+   "fieldtype": "Data",
+   "label": "Last Out Time",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_working_hours",
+   "fieldtype": "Float",
+   "label": "Total Working Hours",
+   "read_only": 1
+  },
+  {
+   "fieldname": "overtime_hours",
+   "fieldtype": "Float",
+   "label": "Overtime Hours",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_13",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "corrected_in_time",
+   "fieldtype": "Datetime",
+   "label": "Corrected in Time"
+  },
+  {
+   "fieldname": "corrected_out_time",
+   "fieldtype": "Datetime",
+   "label": "Corrected Out Time"
+  },
+  {
+   "fieldname": "corrected_total_working_hours",
+   "fieldtype": "Float",
+   "label": "Corrected Total Working Hours"
+  },
+  {
+   "fieldname": "corrected_overtime_hours",
+   "fieldtype": "Float",
+   "label": "Corrected Overtime Hours"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Attendance Regularize",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "attendance_marked",
+   "fieldtype": "Link",
+   "label": "Attendance Marked",
+   "options": "Attendance",
+   "read_only": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Data",
+   "label": "Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "corrected_status",
+   "fieldtype": "Select",
+   "label": "Corrected Status",
+   "options": "\nPresent\nAbsent\nOn Leave\nHalf Day\nWork From Home"
+  },
+  {
+   "fieldname": "attach_proof",
+   "fieldtype": "Attach",
+   "in_list_view": 1,
+   "label": "Attach Proof"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2023-05-04 15:41:47.294560",
+ "modified_by": "Administrator",
+ "module": "JMI",
+ "name": "Attendance Regularize",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

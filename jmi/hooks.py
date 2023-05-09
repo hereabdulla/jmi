@@ -95,12 +95,16 @@ app_license = "MIT"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-#	"*": {
-#		"on_update": "method",
-#		"on_cancel": "method",
-#		"on_trash": "method"
-#	}
+doc_events = {
+	# "Salary Slip": {
+	# 	"on_update": [
+	# 		"jmi.custom.ot_hrs",
+	# 		"jmi.custom.convert_ot_into_mandays",
+
+	# 	]
+		# "on_cancel": "method",
+		# "on_trash": "method"
+	}
 # }
 
 # Scheduled Tasks

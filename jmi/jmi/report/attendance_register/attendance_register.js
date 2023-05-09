@@ -23,12 +23,18 @@ frappe.query_reports["Attendance Register"] = {
 			"options": "Employee",
 		},
 		{
-			"fieldname": "department",
-			"label": __("Department"),
+			"fieldname": "contractor",
+			"label": __("Contractor"),
 			"fieldtype": "Link",
-			"options": "Department",
+			"options": "Contractor",
 		},
-	
+		{
+			"fieldname": "branch",
+			"label": __("Branch"),
+			"fieldtype": "Link",
+			"options": "Branch",
+			
+		},
 	],
 	onload: function (report) {
 		var to_date = frappe.query_report.get_filter('to_date');
@@ -38,8 +44,5 @@ frappe.query_reports["Attendance Register"] = {
 		from_date.refresh();
 		var d = frappe.datetime.add_months(frappe.datetime.month_start())
 		from_date.set_input(frappe.datetime.add_days(d))
-
 }
-	
-	
 };

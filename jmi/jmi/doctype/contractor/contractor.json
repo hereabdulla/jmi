@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:contractor_name",
+ "autoname": "CON.####",
  "creation": "2022-07-18 15:56:40.334545",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -14,8 +14,7 @@
   {
    "fieldname": "contractor_name",
    "fieldtype": "Data",
-   "label": "Contractor Name",
-   "unique": 1
+   "label": "Contractor Name"
   },
   {
    "fieldname": "contractor_wages",
@@ -26,10 +25,11 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-11-23 22:19:24.769553",
+ "modified": "2023-03-21 17:26:43.948067",
  "modified_by": "Administrator",
  "module": "JMI",
  "name": "Contractor",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {
@@ -46,5 +46,6 @@
   }
  ],
  "sort_field": "modified",
- "sort_order": "DESC"
+ "sort_order": "DESC",
+ "states": []
 }

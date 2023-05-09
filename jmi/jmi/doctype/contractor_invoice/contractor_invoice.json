@@ -7,16 +7,29 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "contractor_details_section",
   "payroll_date",
+  "payroll_end_date",
+  "branch",
   "contractor",
+  "column_break_4",
+  "address_line2",
+  "address_line1",
+  "contact_number1",
+  "contact_number2",
+  "column_break_8",
+  "email",
+  "esic",
+  "epf",
+  "gst",
+  "payment_details_section",
   "total_man_days",
   "total_over_time",
   "man_days_rate",
   "travel_allowance_rate",
   "mandays_amount",
-  "column_break_8",
+  "column_break_18",
   "travel_allowance_amount",
-  "total_ctc",
   "taxable_amount",
   "cgst_amount",
   "sgst_amount",
@@ -27,7 +40,7 @@
   {
    "fieldname": "payroll_date",
    "fieldtype": "Date",
-   "label": "Payroll Date"
+   "label": "Payroll Start Date"
   },
   {
    "fieldname": "contractor",
@@ -46,11 +59,13 @@
    "label": "Total Over Time"
   },
   {
+   "fetch_from": "contractor.billing_rate_per_manday",
    "fieldname": "man_days_rate",
    "fieldtype": "Currency",
    "label": "Man Days Rate"
   },
   {
+   "fetch_from": "contractor.ot_amount_per_day",
    "fieldname": "travel_allowance_rate",
    "fieldtype": "Currency",
    "label": "Travel Allowance Rate"
@@ -68,11 +83,6 @@
    "fieldname": "travel_allowance_amount",
    "fieldtype": "Currency",
    "label": "Travel Allowance Amount"
-  },
-  {
-   "fieldname": "total_ctc",
-   "fieldtype": "Currency",
-   "label": "Total CTC"
   },
   {
    "fieldname": "taxable_amount",
@@ -98,14 +108,100 @@
    "fieldname": "total_amount_in_words",
    "fieldtype": "Data",
    "label": "Total Amount In Words"
+  },
+  {
+   "fetch_from": "contractor._address_line_1",
+   "fieldname": "address_line1",
+   "fieldtype": "Data",
+   "label": "Address Line1",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "contractor._address_line_2",
+   "fieldname": "address_line2",
+   "fieldtype": "Data",
+   "label": "Address Line2",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "contractor.contact_number_1",
+   "fieldname": "contact_number1",
+   "fieldtype": "Data",
+   "label": "Contact Number1",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "contractor.contact_number_2",
+   "fieldname": "contact_number2",
+   "fieldtype": "Data",
+   "label": "Contact Number2",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "contractor.email_id",
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "contractor.esic",
+   "fieldname": "esic",
+   "fieldtype": "Data",
+   "label": "ESIC",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "contractor.epf",
+   "fieldname": "epf",
+   "fieldtype": "Data",
+   "label": "EPF",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "contractor.gst",
+   "fieldname": "gst",
+   "fieldtype": "Data",
+   "label": "GST",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_18",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contractor_details_section",
+   "fieldtype": "Section Break",
+   "label": "Contractor Details"
+  },
+  {
+   "fieldname": "payment_details_section",
+   "fieldtype": "Section Break",
+   "label": "Payment Details"
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "label": "Branch",
+   "options": "Branch"
+  },
+  {
+   "fieldname": "payroll_end_date",
+   "fieldtype": "Date",
+   "label": "Payroll End Date"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-11-23 22:19:25.291958",
+ "modified": "2023-01-12 13:40:26.955408",
  "modified_by": "Administrator",
  "module": "JMI",
  "name": "Contractor Invoice",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {
@@ -122,5 +218,8 @@
   }
  ],
  "sort_field": "modified",
- "sort_order": "DESC"
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1
 }
