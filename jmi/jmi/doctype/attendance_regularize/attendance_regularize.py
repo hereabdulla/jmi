@@ -98,7 +98,7 @@ class AttendanceRegularize(Document):
             if att_reg == self.name:
                 frappe.db.sql(""" update `tabAttendance` set attendance_regularize = '' where name = '%s' and docstatus != 2 """%(att))
                 frappe.db.sql(""" update `tabAttendance` set matched_status = 'Unmatched' where name = '%s' and docstatus != 2 """%(att))
-                frappe.db.sql("""update `tabAttendance` set docstatus = '0' where name ='%s' """%(att))
+                frappe.db.sql(""" update `tabAttendance` set docstatus = '0' where name ='%s' """%(att))
     
     def validate_total_wh(self):
         datalist = []

@@ -13,6 +13,7 @@
   "branch",
   "contractor",
   "column_break_4",
+  "letter_head",
   "address_line2",
   "address_line1",
   "contact_number1",
@@ -23,13 +24,15 @@
   "epf",
   "gst",
   "payment_details_section",
+  "details",
+  "section_break_18",
   "total_man_days",
   "total_over_time",
   "man_days_rate",
   "travel_allowance_rate",
   "mandays_amount",
+  "total_travel_allowance_amount",
   "column_break_18",
-  "travel_allowance_amount",
   "taxable_amount",
   "cgst_amount",
   "sgst_amount",
@@ -45,6 +48,7 @@
   {
    "fieldname": "contractor",
    "fieldtype": "Link",
+   "in_standard_filter": 1,
    "label": "Contractor",
    "options": "Contractor"
   },
@@ -62,27 +66,24 @@
    "fetch_from": "contractor.billing_rate_per_manday",
    "fieldname": "man_days_rate",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Man Days Rate"
   },
   {
    "fetch_from": "contractor.ot_amount_per_day",
    "fieldname": "travel_allowance_rate",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Travel Allowance Rate"
   },
   {
    "fieldname": "mandays_amount",
    "fieldtype": "Currency",
-   "label": "Mandays Amount"
+   "label": "Total Mandays Amount"
   },
   {
    "fieldname": "column_break_8",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "travel_allowance_amount",
-   "fieldtype": "Currency",
-   "label": "Travel Allowance Amount"
   },
   {
    "fieldname": "taxable_amount",
@@ -186,6 +187,7 @@
   {
    "fieldname": "branch",
    "fieldtype": "Link",
+   "in_standard_filter": 1,
    "label": "Branch",
    "options": "Branch"
   },
@@ -193,11 +195,34 @@
    "fieldname": "payroll_end_date",
    "fieldtype": "Date",
    "label": "Payroll End Date"
+  },
+  {
+   "fieldname": "details",
+   "fieldtype": "Table",
+   "label": "Details",
+   "options": "Contractor wise PD"
+  },
+  {
+   "fieldname": "section_break_18",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "total_travel_allowance_amount",
+   "fieldtype": "Currency",
+   "label": "Total Travel Allowance Amount"
+  },
+  {
+   "fetch_from": "contractor.letter_head_",
+   "fieldname": "letter_head",
+   "fieldtype": "Link",
+   "label": "Letter Head",
+   "options": "Letter Head",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-12 13:40:26.955408",
+ "modified": "2024-01-05 12:14:35.215773",
  "modified_by": "Administrator",
  "module": "JMI",
  "name": "Contractor Invoice",

@@ -13,7 +13,6 @@ from frappe import msgprint, _
 from calendar import month, monthrange
 from datetime import date, timedelta, datetime,time
 from numpy import true_divide
-
 import pandas as pd
 
 status_map = {
@@ -50,7 +49,13 @@ def execute(filters=None):
 def get_columns(filters):
     columns = []
     columns += [
-        _("Employee ID") + ":Data/:150",_("Employee Name") + ":Data/:200",_("Contractor") + ":Data/:150",_("Designation") + ":Data/:150",_("Branch") + ":Data/:150",_("DOJ") + ":Date/:100",
+        _("Employee ID") + ":Data/:150",
+        _("Employee Name") + ":Data/:200",
+        _("Contractor") + ":Data/:150",
+        _("Designation") + ":Data/:150",
+        _("Branch") + ":Data/:150",
+        _("DOJ") + ":Date/:100",
+        _("RD") + ":Date/:100",
     ]
     dates = get_dates(filters.from_date,filters.to_date)
     for date in dates:
@@ -62,42 +67,18 @@ def get_columns(filters):
     columns.append(_('Half Day') +':Data/:100')
     columns.append(_("Absent") + ":Data/:100")
     columns.append(_('Weekoff')+ ':Data/:100')
-    # columns.append(_('OT Hours')+ ':Data/:100')
     return columns
 
 def get_data(filters):
     data = []
-    emp_status_map = []
     employees = get_employees(filters)
     for emp in employees:
         dates = get_dates(filters.from_date,filters.to_date)
-        row1 = [emp.name,emp.employee_name,emp.contractor,emp.designation,emp.branch,emp.date_of_joining]
-        # row2 = ["","","","","","","In Time"]
-        # row3 = ["","","","","","","Out Time"]
-        # row4 = ["","","","","","","Shift"]
-        # row5 = ["","","","","","","Overtime"]
-        # row6 = ["","","","","","","Total Working Hours"]
-
+        row1 = [emp.name,emp.employee_name,emp.contractor,emp.designation,emp.branch,emp.date_of_joining,emp.relieving_date]
         total_present = 0
         total_half_day = 0
         total_absent = 0
-        total_holiday = 0
         total_weekoff = 0
-        total_ot = 0
-        total_wot =0
-        total_hot =0
-        total_od = 0
-        total_lop = 0
-        total_paid_leave = 0
-        total_combo_off = 0
-        c_shift = 0
-        over_time_hours = 0
-        total_late = timedelta(0,0,0)
-        total_late_deduct = timedelta(0,0)
-        ww = 0
-        twh = 0
-        ot = 0
-        total_days = 0
         for date in dates:
             att = frappe.db.get_value("Attendance",{'attendance_date':date,'employee':emp.name},['status','in_time','out_time','shift','employee','attendance_date','name','over_time_hours','total_working_hours','leave_type']) or ''
             if att:
@@ -108,15 +89,11 @@ def get_data(filters):
                         if hh == 'WW':
                             total_weekoff +=1
                             row1.append('P/WW')
-                
                         else:
                             row1.append('P/HH')
                     else:  
                         row1.append(status or "-")
                         total_present = total_present + 1  
-                        # total_days = total_present+total_holiday+total_weekoff
-                # elif hh == 'WW' and status == 'p':
-                #     row1.append('P/WW')   
                 elif status == 'HD':
                     hh = check_holiday(date,emp.name)
                     if hh :
@@ -128,7 +105,6 @@ def get_data(filters):
                     else:  
                         row1.append(status or "-")
                         total_half_day = total_half_day + 1  
-                        # total_days = total_present+total_holiday+total_weekoff  
                 elif status == 'A':
                     hh = check_holiday(date,emp.name)
                     if hh:
@@ -138,7 +114,6 @@ def get_data(filters):
                     else: 
                         row1.append(status or '-') 
                         total_absent = total_absent + 1                         
-
             else:
                 hh = check_holiday(date,emp.name)
                 if hh :
@@ -149,14 +124,8 @@ def get_data(filters):
                         row1.append(hh)
                 else:
                     row1.append('-')
-    
-               
-
-        # permission_hours = frappe.db.sql("""select sum(hours) as sum from `tabPermission Request` where permission_date between '%s' and '%s' and employee_id = '%s' and docstatus = '1' """%(filters.from_date,filters.to_date,emp.name),as_dict=True)[0].sum or 0
         row1.extend([total_present,total_half_day,total_absent,total_weekoff])
-       
         data.append(row1)
-       
     return data
 
 def get_dates(from_date,to_date):
@@ -173,9 +142,8 @@ def get_employees(filters):
         conditions += "and branch = '%s' " % (filters.branch)
     if filters.contractor:
         conditions+="and contractor = '%s' "%(filters.contractor)
-           
-    employees = frappe.db.sql("""select name, employee_name, contractor,department, designation, branch ,date_of_joining,holiday_list from `tabEmployee` where status = 'Active' %s """ % (conditions), as_dict=True)
-    left_employees = frappe.db.sql("""select name, employee_name,contractor, department, designation, date_of_joining from `tabEmployee` where status = 'Left' and relieving_date >= '%s' %s """ %(filters.from_date,conditions),as_dict=True)
+    employees = frappe.db.sql("""select * from `tabEmployee` where status = 'Active' %s """ % (conditions), as_dict=True)
+    left_employees = frappe.db.sql("""select * from `tabEmployee` where status = 'Left' and relieving_date >= '%s' %s """ %(filters.from_date,conditions),as_dict=True)
     employees.extend(left_employees)
     return employees
 

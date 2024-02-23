@@ -96,20 +96,27 @@ app_license = "MIT"
 # Hook on document methods and events
 
 doc_events = {
-	# "Salary Slip": {
-	# 	"on_update": [
-	# 		"jmi.custom.ot_hrs",
-	# 		"jmi.custom.convert_ot_into_mandays",
-
-	# 	]
-		# "on_cancel": "method",
-		# "on_trash": "method"
+	"on_update":{
+		"validate": "jmi.custom.set_status"
+	},
+	"Payroll Entry":{
+		"on_submit": 'jmi.custom.salary_structure_assignment_val'
+	},
 	}
 # }
 
 # Scheduled Tasks
 # ---------------
-
+scheduler_events = {
+	"cron": {
+		"*/45 * * * *": [
+			"jmi.custom.att_background_backend"
+		],
+		"*/30 * * * *": [
+			"jmi.custom.mark_employee_checkin_backend"
+		]
+	}
+}
 # scheduler_events = {
 #	"all": [
 #		"jmi.tasks.all"

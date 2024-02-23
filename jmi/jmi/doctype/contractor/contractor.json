@@ -1,35 +1,51 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "CON.####",
+ "autoname": "field:contractor_name",
  "creation": "2022-07-18 15:56:40.334545",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "contractor_name",
-  "contractor_wages"
+  "contractor_wages",
+  "branch",
+  "designation"
  ],
  "fields": [
   {
    "fieldname": "contractor_name",
    "fieldtype": "Data",
-   "label": "Contractor Name"
+   "label": "Contractor Name",
+   "unique": 1
   },
   {
    "fieldname": "contractor_wages",
    "fieldtype": "Table",
    "label": "Contractor Wages",
    "options": "Contractor Wages"
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Table",
+   "hidden": 1,
+   "label": "Branch",
+   "options": "Branch List"
+  },
+  {
+   "fieldname": "designation",
+   "fieldtype": "Table",
+   "label": "Designation",
+   "options": "Designation List"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-03-21 17:26:43.948067",
+ "modified": "2024-01-12 16:30:50.657538",
  "modified_by": "Administrator",
  "module": "JMI",
  "name": "Contractor",
- "naming_rule": "Expression (old style)",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {

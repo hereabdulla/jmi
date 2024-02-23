@@ -24,7 +24,7 @@ from frappe.utils import (getdate, cint, add_months, date_diff, add_days,
 import pandas as pd
 import math
 from frappe.utils import add_months, cint, flt, getdate, time_diff_in_hours,time_diff_in_seconds
-
+import locale
 
 
 import openpyxl
@@ -81,13 +81,14 @@ def make_xlsx(data, sheet_name=None, wb=None, column_widths=None):
             # ctc_c = frappe.get_value('Salary Detail',{'salary_component':'CTC Component','parent':ss.name},['amount']) or 0
             # ctc = frappe.get_value('Salary Detail',{'salary_component':'CTC','parent':ss.name},['amount']) or 0
             hra = round(frappe.get_value('Salary Detail',{'salary_component':'HRA1','parent':ss.name},['amount']) or 0)or 0
-    
+            
             gross = round(basic + da + eesic + epf + bonus + service_charge + ot + hra + uniform_and_shoes)
             gross1 = (basic + da)
             gross2 = (ot + bonus)
             ws.append([i,emp.employee,emp.employee_name,ss.payment_days,ss.overtime_hours,per_day_amount,basic,da,gross1,bonus,ot,gross2,eesic,epf,service_charge,uniform_and_shoes,gross])
         
         else:
+            locale.setlocale(locale.LC_ALL, 'en_US.utf8')
             # frappe.log_error(ss)
             basic = frappe.get_value('Salary Detail',{'salary_component':'Basic','parent':ss.name },['amount']) or 0
             per_day_amount = 707
@@ -109,8 +110,9 @@ def make_xlsx(data, sheet_name=None, wb=None, column_widths=None):
             gross = (basic + da + eesic + epf + bonus + service_charge + ot) - uniform_and_shoes
             gross1 = (basic + da)
             gross2 = (ot + bonus)
-    
-            ws.append([i,emp.employee,emp.employee_name,ss.payment_days,ss.overtime_hours,base_per_day,da_per_day,ot_per_day,basic,da,gross1,bonus,ot,gross2,eesic,epf,service_charge,uniform_and_shoes,gross])
+            formatted_value = locale.format_string("%0.2f", gross, grouping=True)
+            frappe.log_error(formatted_value)
+            ws.append([i,emp.employee,emp.employee_name,ss.payment_days,ss.overtime_hours,base_per_day,da_per_day,ot_per_day,basic,da,gross1,bonus,ot,gross2,eesic,epf,service_charge,uniform_and_shoes,formatted_value])
         i=1+i
    
         ws.merge_cells(start_row=1,start_column=1,end_row=1,end_column=19)

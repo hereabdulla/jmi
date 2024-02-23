@@ -5,6 +5,9 @@ import frappe
 from frappe.model.document import Document
 
 class AttendanceSubmissionTool(Document):
-	def validate(self):
-		frappe.db.sql("""update `tabAttendance` set docstatus = 1 where attendance_date between '%s' and '%s' and branch = '%s' and contractor = '%s' """%(self.from_date,self.to_date,self.branch,self.contractor))
+	pass
+	
+@frappe.whitelist()	
+def submit_att(from_date,to_date,contractor,branch):
+	frappe.db.sql("""update `tabAttendance` set docstatus = 1 where attendance_date between '%s' and '%s' and branch = '%s' and contractor = '%s' """%(from_date,to_date,branch,contractor))
 

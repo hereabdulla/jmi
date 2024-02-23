@@ -33,6 +33,7 @@ frappe.query_reports["Muster Report"] = {
 			"label": __("Branch"),
 			"fieldtype": "Link",
 			"options": "Branch",
+			"reqd": 1
 			
 		},
 	],
