@@ -1,0 +1,162 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-11-23 16:46:02.126870",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "date",
+  "designation",
+  "basic",
+  "dearness_allowance",
+  "hra",
+  "earning_provident_fund_13",
+  "earning_esi_325",
+  "bonus_monthly",
+  "management_fee",
+  "uniform_allowance",
+  "service_charge",
+  "total",
+  "travel_allowance_rate",
+  "deduction_pf_12",
+  "deduction_esi_075"
+ ],
+ "fields": [
+  {
+   "default": "Today",
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "designation",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Designation",
+   "options": "Designation",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "basic",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Basic",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "dearness_allowance",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Dearness Allowance",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "hra",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "HRA",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "earning_provident_fund_13",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Earning Provident Fund 13% ",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "earning_esi_325",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Earning ESI 3.25%",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "bonus_monthly",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Bonus Monthly",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "management_fee",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Management Fee",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "uniform_allowance",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Uniform Allowance",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "service_charge",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Service Charge",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "total",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Total",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "travel_allowance_rate",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Travel Allowance Rate",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "deduction_pf_12",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Deduction PF 12%",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "deduction_esi_075",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Deduction ESI 0.75%",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2023-11-23 18:26:04.436356",
+ "modified_by": "Administrator",
+ "module": "JMI",
+ "name": "Contractor Wages Revision",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

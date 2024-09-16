@@ -1,0 +1,112 @@
+{
+ "actions": [],
+ "allow_copy": 1,
+ "allow_rename": 1,
+ "creation": "2023-06-07 16:27:29.517259",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "test",
+  "section_break_3",
+  "from_date",
+  "column_break_2",
+  "to_date",
+  "column_break_6",
+  "plant",
+  "section_break_6",
+  "with_biometric_id",
+  "column_break_9",
+  "device_type"
+ ],
+ "fields": [
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "From Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "To Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "test",
+   "fieldtype": "HTML",
+   "hidden": 1,
+   "options": "      \n <p><b><em style=\"color: red; font-size: 15px;\">Employee Checkin Must Choose 3 Days Between From Date and To Date</em></b></p>    \n "
+  },
+  {
+   "fieldname": "section_break_3",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_6",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "with_biometric_id",
+   "fieldtype": "Check",
+   "label": "With Biometric ID"
+  },
+  {
+   "fieldname": "plant",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Plant",
+   "mandatory_depends_on": "eval:doc.with_biometric_id==1",
+   "options": "Branch",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.with_biometric_id==1",
+   "fieldname": "device_type",
+   "fieldtype": "Select",
+   "label": "Device Type",
+   "mandatory_depends_on": "eval:doc.with_biometric_id==1",
+   "options": "\nIN\nOUT"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "hide_toolbar": 1,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2024-01-26 11:04:28.191272",
+ "modified_by": "Administrator",
+ "module": "JMI",
+ "name": "Mark Employee Checkin",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -407,17 +407,6 @@ def update_checkin_att():
 
 @frappe.whitelist()
 def mark_attendance_new_ec():
-	from_date = "2023-10-21"
-	to_date = "2023-11-09"
-	employees = frappe.get_all("Employee",{'status':"Active"})
-		# print(date)
-	for e in employees:
-		checkins = frappe.db.sql("""select count(*) as count from `tabEmployee Checkin` where skip_auto_attendance = 0 and date(time) between '%s' and '%s' and employee = '%s' """%(from_date,to_date,e.name),as_dict=True)[0]
-		# print(checkins)
-		if checkins['count'] > 15:
-			print(e.name)
-		# checkins = frappe.db.sql("""select * from `tabEmployee Checkin` where skip_auto_attendance = 0 and date(time) = '%s' order by time ASC"""%(date),as_dict=True) 
-		# if checkins:
-		# 	for c in checkins:
-		# 		print(c.name)
-		# 		if frappe.db.exists("Employee",{'name':c.employee,'status':"Active"}):
+	from_date = "2024-03-21"
+	to_date = "2024-04-20"
+	mark_attendance_new(from_date,to_date)

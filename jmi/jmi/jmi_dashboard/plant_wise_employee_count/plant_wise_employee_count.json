@@ -1,0 +1,21 @@
+{
+ "cards": [],
+ "charts": [
+  {
+   "chart": "Plant Wise Employee Count",
+   "width": "Half"
+  }
+ ],
+ "creation": "2024-07-01 11:24:56.791530",
+ "dashboard_name": "Plant Wise Employee Count",
+ "docstatus": 0,
+ "doctype": "Dashboard",
+ "idx": 0,
+ "is_default": 0,
+ "is_standard": 1,
+ "modified": "2024-07-01 11:24:56.791530",
+ "modified_by": "Administrator",
+ "module": "JMI",
+ "name": "Plant Wise Employee Count",
+ "owner": "Administrator"
+}

@@ -100,8 +100,14 @@ doc_events = {
 		"validate": "jmi.custom.set_status"
 	},
 	"Payroll Entry":{
-		"on_submit": 'jmi.custom.salary_structure_assignment_val'
+		"on_submit": 'jmi.custom.validate_salary_structure_assignment'
 	},
+	"Employee":{
+		"validate":"jmi.utils.validate_att_relieving_date"
+	},
+	'Attendance':{
+		"on_submit":"jmi.utils.validate_relieving_day_att"
+	}	
 	}
 # }
 

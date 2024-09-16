@@ -1,0 +1,37 @@
+{
+ "chart_name": "Planned Vs Actual Count",
+ "chart_type": "Report",
+ "creation": "2024-01-11 21:57:51.832903",
+ "docstatus": 0,
+ "doctype": "Dashboard Chart",
+ "dynamic_filters_json": "{\"date\":\"frappe.datetime.add_days(frappe.datetime.get_today(), -1)\"}",
+ "filters_json": "{}",
+ "group_by_type": "Count",
+ "idx": 0,
+ "is_public": 1,
+ "is_standard": 1,
+ "modified": "2024-01-11 21:58:45.260134",
+ "modified_by": "Administrator",
+ "module": "JMI",
+ "name": "Planned Vs Actual Count",
+ "number_of_groups": 0,
+ "owner": "Administrator",
+ "report_name": "Planned Vs Actual Count",
+ "roles": [],
+ "time_interval": "Yearly",
+ "timeseries": 0,
+ "timespan": "Last Year",
+ "type": "Bar",
+ "use_report_chart": 0,
+ "x_field": "branch",
+ "y_axis": [
+  {
+   "color": "#761ACB",
+   "y_field": "planned_count"
+  },
+  {
+   "color": "#07f2f2",
+   "y_field": "actual_count"
+  }
+ ]
+}

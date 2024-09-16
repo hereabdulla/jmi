@@ -1,0 +1,73 @@
+{
+ "actions": [],
+ "autoname": "autoincrement",
+ "creation": "2023-12-27 23:46:06.650065",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "device_serial_number",
+  "device_name",
+  "branch",
+  "log_type",
+  "shift_5",
+  "shift_6"
+ ],
+ "fields": [
+  {
+   "fieldname": "device_serial_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Device Serial Number",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "device_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Device Name",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "log_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Log Type",
+   "options": "\nIN\nOUT",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "shift_5",
+   "fieldtype": "Check",
+   "label": "Shift 5 "
+  },
+  {
+   "default": "0",
+   "fieldname": "shift_6",
+   "fieldtype": "Check",
+   "label": "Shift 6"
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "label": "Branch ",
+   "options": "Branch"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2023-12-28 15:10:28.638729",
+ "modified_by": "Administrator",
+ "module": "JMI",
+ "name": "Device Details",
+ "naming_rule": "Autoincrement",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,86 @@
+{
+ "actions": [],
+ "autoname": "autoincrement",
+ "creation": "2023-07-06 14:26:11.477811",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "attendance_regularize",
+  "employee",
+  "attendance_date",
+  "branch",
+  "contractor",
+  "designation",
+  "corrected_total_working_hours",
+  "corrected_overtime_hours"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "attendance_date",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Attendance Date"
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Branch ",
+   "options": "Branch"
+  },
+  {
+   "fieldname": "contractor",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Contractor",
+   "options": "Contractor"
+  },
+  {
+   "fieldname": "designation",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Designation",
+   "options": "Designation"
+  },
+  {
+   "fieldname": "corrected_total_working_hours",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Corrected Total Working Hours"
+  },
+  {
+   "fieldname": "corrected_overtime_hours",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Corrected Overtime Hours"
+  },
+  {
+   "fieldname": "attendance_regularize",
+   "fieldtype": "Link",
+   "label": "Attendance Regularize",
+   "options": "Attendance Regularize",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2023-07-06 14:54:07.814294",
+ "modified_by": "Administrator",
+ "module": "JMI",
+ "name": "Attendance Regularize Pending",
+ "naming_rule": "Autoincrement",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

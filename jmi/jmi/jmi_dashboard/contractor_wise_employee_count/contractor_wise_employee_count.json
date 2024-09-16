@@ -1,0 +1,21 @@
+{
+ "cards": [],
+ "charts": [
+  {
+   "chart": "Contractor Wise Employee Count",
+   "width": "Half"
+  }
+ ],
+ "creation": "2024-07-01 11:13:45.486344",
+ "dashboard_name": "Contractor Wise Employee Count",
+ "docstatus": 0,
+ "doctype": "Dashboard",
+ "idx": 0,
+ "is_default": 0,
+ "is_standard": 1,
+ "modified": "2024-07-01 11:13:45.486344",
+ "modified_by": "Administrator",
+ "module": "JMI",
+ "name": "Contractor Wise Employee Count",
+ "owner": "Administrator"
+}

@@ -33,154 +33,9 @@ from datetime import datetime,date
 from datetime import time
 
 @frappe.whitelist()
-def get_md(contractor,branch,start_date,end_date,designation):
-	mdr = frappe.get_value('Contractor Wages',{'designation':designation,'parent':contractor},['total'])
-	tar = frappe.get_value('Contractor Wages',{'designation':designation,'parent':contractor},['travel_allowance_rate'])
-	man_days = frappe.db.sql("""select sum(payment_days) from `tabSalary Slip` where docstatus != '2' and contractor ='%s' and branch = '%s' and start_date = '%s' and end_date = '%s' and designation = '%s' """%(contractor,branch,start_date,end_date,designation),as_dict = 1)[0]
-	ot = frappe.db.sql("""select (sum(overtime_hours))  as ot_hrs from `tabSalary Slip` where docstatus != 2  and contractor ='%s' and branch ='%s' and start_date = '%s' and end_date = '%s' and designation = '%s' """%(contractor,branch,start_date,end_date,designation),as_dict = 1)[0]
-	return man_days['sum(payment_days)'] or 0 ,  ot['ot_hrs'] or 0 , mdr or 0 ,tar or 0
-
-@frappe.whitelist()
 def get_mandays_amount(contractor,branch):
 	man_days_amount = frappe.db.sql("""select sum(rounded_total) from `tabSalary Slip` where docstatus != 2  and contractor='%s' and branch = '%s' """%(contractor,branch),as_dict = 1)[0]
 	return[man_days_amount['sum(rounded_total)']]
-
-@frappe.whitelist()
-def get_total_amount_in_words(total_amount):
-	tot = money_in_words(total_amount)
-	return tot
-
-@frappe.whitelist()
-def mark_employee_checkin_frontend_without_device_id(from_date, to_date, plant):
-	frappe.enqueue(
-		mark_employee_checkin_frontend_queue_without_device_id, # python function or a module path as string
-		queue="long", # one of short, default, long
-		timeout=36000, # pass timeout manually
-		is_async=True, # if this is True, method is run in worker
-		now=False, # if this is True, method is run directly (not in a worker) 
-		job_name='Checkin Upload', # specify a job name
-		enqueue_after_commit=False, # enqueue the job after the database commit is done at the end of the request
-		from_date = from_date , # kwargs are passed to the method as arguments
-		to_date = to_date,
-		plant =plant
-	)  
-
-@frappe.whitelist()
-def mark_employee_checkin_frontend_queue_without_device_id(from_date, to_date, plant= None):
-	device = frappe.db.get_all("Device Details",['*'])
-	if device:
-		for s in device:
-			if s.branch ==plant:
-				serial = s.device_serial_number 
-				url = "http://192.168.1.189:8080/iclock/webapiservice.asmx?op=GetTransactionsLog"
-				payload = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <GetTransactionsLog xmlns=\"http://tempuri.org/\">\n      <FromDate>%s</FromDate>\n      <ToDate>%s</ToDate>\n      <SerialNumber>%s</SerialNumber>\n      <UserName>tss</UserName>\n      <UserPassword>Tss@12345</UserPassword>\n      <strDataList></strDataList>\n    </GetTransactionsLog>\n  </soap:Body>\n</soap:Envelope>" % (from_date,to_date,serial)
-				ET.headers = {
-				'Content-Type': 'text/xml'
-				}
-				response = requests.request("POST", url, headers=ET.headers, data=payload)
-				root=ET.fromstring(response.text)
-				my_dict = xmltodict.parse(response.text)
-				try:
-					attlog = my_dict['soap:Envelope']['soap:Body']['GetTransactionsLogResponse']['strDataList']
-				except KeyError as e:
-					print(f"KeyError: {e}. Handling missing key.")
-					attlog = []
-				if attlog:
-					mylist = attlog.split('\n')
-					for mydict in mylist:
-						mytlist = mydict.split('\t')
-						emp_id = mytlist[0]
-						date_time = mytlist[1]
-						log_type = mytlist[2]
-						urls = "http://192.168.1.188/api/method/jmi.biometric_checkin.mark_checkin?employee=%s&time=%s&device_id=%s&log_type=%s" % (emp_id,date_time,serial,log_type)
-						headers = { 'Content-Type': 'application/json','Authorization': 'token 2d42d97bd67d671: 8bb6689649df56c'}
-						responses = requests.request('GET',urls,headers=headers,verify=False)
-						res = json.loads(responses.text)
-						print(emp_id)
-			else:
-				serial = s.device_serial_number 
-				url = "http://192.168.1.189:8080/iclock/webapiservice.asmx?op=GetTransactionsLog"
-				payload = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <GetTransactionsLog xmlns=\"http://tempuri.org/\">\n      <FromDate>%s</FromDate>\n      <ToDate>%s</ToDate>\n      <SerialNumber>%s</SerialNumber>\n      <UserName>tss</UserName>\n      <UserPassword>Tss@12345</UserPassword>\n      <strDataList></strDataList>\n    </GetTransactionsLog>\n  </soap:Body>\n</soap:Envelope>" % (from_date,to_date,serial)
-				ET.headers = {
-				'Content-Type': 'text/xml'
-				}
-				response = requests.request("POST", url, headers=ET.headers, data=payload)
-				root=ET.fromstring(response.text)
-				my_dict = xmltodict.parse(response.text)
-				try:
-					attlog = my_dict['soap:Envelope']['soap:Body']['GetTransactionsLogResponse']['strDataList']
-				except KeyError as e:
-					print(f"KeyError: {e}. Handling missing key.")
-					attlog = []
-				if attlog:
-					mylist = attlog.split('\n')
-					for mydict in mylist:
-						mytlist = mydict.split('\t')
-						emp_id = mytlist[0]
-						date_time = mytlist[1]
-						log_type = mytlist[2]
-						urls = "http://192.168.1.188/api/method/jmi.biometric_checkin.mark_checkin?employee=%s&time=%s&device_id=%s&log_type=%s" % (emp_id,date_time,serial,log_type)
-						headers = { 'Content-Type': 'application/json','Authorization': 'token 2d42d97bd67d671: 8bb6689649df56c'}
-						responses = requests.request('GET',urls,headers=headers,verify=False)
-						res = json.loads(responses.text)
-						print(emp_id)
-
-
-		
-@frappe.whitelist()
-def mark_employee_checkin_frontend(from_date, to_date, with_biometric,plant, device_type):
-	frappe.enqueue(
-		mark_employee_checkin_frontend_queue, # python function or a module path as string
-		queue="long", # one of short, default, long
-		timeout=36000, # pass timeout manually
-		is_async=True, # if this is True, method is run in worker
-		now=True, # if this is True, method is run directly (not in a worker) 
-		job_name='Checkin Upload', # specify a job name
-		# enqueue_after_commit=False, # enqueue the job after the database commit is done at the end of the request
-		from_date = from_date , # kwargs are passed to the method as arguments
-		to_date = to_date,
-		with_biometric = with_biometric,
-		plant=plant,
-		device_type=device_type
-
-	)  
-
-@frappe.whitelist()
-def mark_employee_checkin_frontend_queue(from_date, to_date, with_biometric, plant, device_type):
-	frappe.errprint("HI")
-	device = frappe.db.get_all("Device Details",['*'])
-	if device:
-		frappe.errprint(with_biometric)
-		for s in device:
-			if s.branch ==plant and s.log_type == device_type:
-				
-				serial = s.device_serial_number 
-				url = "http://192.168.1.189:8080/iclock/webapiservice.asmx?op=GetTransactionsLog"
-				payload = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <GetTransactionsLog xmlns=\"http://tempuri.org/\">\n      <FromDate>%s</FromDate>\n      <ToDate>%s</ToDate>\n      <SerialNumber>%s</SerialNumber>\n      <UserName>tss</UserName>\n      <UserPassword>Tss@12345</UserPassword>\n      <strDataList></strDataList>\n    </GetTransactionsLog>\n  </soap:Body>\n</soap:Envelope>" % (from_date,to_date,serial)
-				ET.headers = {
-				'Content-Type': 'text/xml'
-				}
-				response = requests.request("POST", url, headers=ET.headers, data=payload)
-				root=ET.fromstring(response.text)
-				my_dict = xmltodict.parse(response.text)
-				try:
-					attlog = my_dict['soap:Envelope']['soap:Body']['GetTransactionsLogResponse']['strDataList']
-				except KeyError as e:
-					print(f"KeyError: {e}. Handling missing key.")
-					attlog = []
-				if attlog:
-					mylist = attlog.split('\n')
-					for mydict in mylist:
-						mytlist = mydict.split('\t')
-						emp_id = mytlist[0]
-						date_time = mytlist[1]
-						log_type = mytlist[2]
-						urls = "http://192.168.1.188/api/method/jmi.biometric_checkin.mark_checkin?employee=%s&time=%s&device_id=%s&log_type=%s" % (emp_id,date_time,serial,log_type)
-						headers = { 'Content-Type': 'application/json','Authorization': 'token 2d42d97bd67d671: 8bb6689649df56c'}
-						responses = requests.request('GET',urls,headers=headers,verify=False)
-						res = json.loads(responses.text)
-						print(emp_id)
-						
 
 @frappe.whitelist()
 def cron_job_checkin():
@@ -196,10 +51,10 @@ def cron_job_checkin():
 
 @frappe.whitelist()
 def mark_employee_checkin():
-	# from_date = "2024-02-06"
-	# to_date = "2024-02-06"
-	from_date = add_days(today(),-0)  
-	to_date = today() 
+	from_date = add_days(today(),-1)  
+	to_date = today()
+	# from_date='2024-08-06'
+	# to_date='2024-08-06' 
 	device = frappe.db.get_all("Device Details",['*'])
 	if device:
 		for s in device:
@@ -228,25 +83,20 @@ def mark_employee_checkin():
 					headers = { 'Content-Type': 'application/json','Authorization': 'token 2d42d97bd67d671: 8bb6689649df56c'}
 					responses = requests.request('GET',urls,headers=headers,verify=False)
 					res = json.loads(responses.text)
-					print(emp_id)
-
-
 				
 @frappe.whitelist()
-def att_background_frontend(from_date, to_date,plant):
-	to_date = datetime.strptime(str(to_date),'%Y-%m-%d').date()
-	from_date = datetime.strptime(str(from_date),'%Y-%m-%d').date()
+def att_background_frontend(from_date, to_date, plant):
+	# to_date = datetime.strptime(str(to_date),'%Y-%m-%d').date()
+	# from_date = datetime.strptime(str(from_date),'%Y-%m-%d').date()
 	dates = get_dates(from_date,to_date)
 	for date in dates:
 		checkin = frappe.db.sql("""select count(*) as count from `tabEmployee Checkin` where skip_auto_attendance = 0 and date(time) = '%s' order by time ASC """%(date),as_dict=True) 
-		print(checkin)
 		if plant == '':
 			checkins = frappe.db.sql("""select * from `tabEmployee Checkin` where skip_auto_attendance = 0 and date(time) = '%s' order by time ASC"""%(date),as_dict=True) 
 		else:
 			checkins = frappe.db.sql("""select * from `tabEmployee Checkin` where skip_auto_attendance = 0 and date(time) = '%s' and branch = '%s' order by time ASC"""%(date,plant),as_dict=True) 
 		if checkins:
 			for c in checkins:
-				print(c.name)
 				if frappe.db.exists("Employee",{'name':c.employee,'status':"Active"}):
 					att = mark_attendance_from_checkin(c.name,c.employee,c.time,c.device_id,c.log_type,plant)
 					if att:
@@ -271,20 +121,75 @@ def cron_job_att():
 		sjt.save(ignore_permissions=True)
 
 @frappe.whitelist()
-def mark_attendance_new():
-	# from_date = add_days(today(),-1)  
-	# to_date = today() 
-	from_date = "2024-02-06"
-	to_date = "2024-02-06"
+def mark_attendance_manual():
+	from_date='2024-08-30'
+	to_date='2024-08-31' 
 	dates = get_dates(from_date,to_date)
 	plant = ''
 	for date in dates:
 		checkin = frappe.db.sql("""select count(*) as count from `tabEmployee Checkin` where date(time) = '%s' order by time ASC """%(date),as_dict=True) 
-		print(checkin)
+		checkins = frappe.db.sql("""select * from `tabEmployee Checkin` where date(time) = '%s' order by time ASC"""%(date),as_dict=True)
+		if checkins:
+			for c in checkins:
+				if frappe.db.exists("Employee",{'name':c.employee,'status':"Active"}):
+					att = mark_attendance_from_checkin(c.name,c.employee,c.time,c.device_id,c.log_type,plant)
+					if att:
+						frappe.db.set_value("Employee Checkin",c.name, "skip_auto_attendance", "1")
+	get_total_working_hours_jmi_plant_1_new(from_date,to_date,plant)
+	get_total_working_hours_except_jmi_plant_1_new(from_date,to_date,plant)
+	get_total_working_hours_vcp_vcr(from_date,to_date,plant)
+	mark_absent_employee_new(from_date,to_date,plant)
+	return "OK"
+
+@frappe.whitelist()
+def mark_employee_checkin_manual():
+	from_date='2024-09-09'
+	to_date='2024-09-09'
+	device = frappe.db.get_all("Device Details",['*'])
+	# device = frappe.db.sql("""SELECT * FROM `tabDevice Details` WHERE device_name LIKE '%VCP%'""",as_dict=True)
+	if device:
+		for s in device:
+			serial = s.device_serial_number 
+			# serial = 'BRM9222361261'
+			url = "http://192.168.1.189:8080/iclock/webapiservice.asmx?op=GetTransactionsLog"
+			payload = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <GetTransactionsLog xmlns=\"http://tempuri.org/\">\n      <FromDate>%s</FromDate>\n      <ToDate>%s</ToDate>\n      <SerialNumber>%s</SerialNumber>\n      <UserName>tss</UserName>\n      <UserPassword>Tss@12345</UserPassword>\n      <strDataList></strDataList>\n    </GetTransactionsLog>\n  </soap:Body>\n</soap:Envelope>" % (from_date,to_date,serial)
+			ET.headers = {
+			'Content-Type': 'text/xml'
+			}
+			response = requests.request("POST", url, headers=ET.headers, data=payload)
+			root=ET.fromstring(response.text)
+			my_dict = xmltodict.parse(response.text)
+			try:
+				attlog = my_dict['soap:Envelope']['soap:Body']['GetTransactionsLogResponse']['strDataList']
+			except KeyError as e:
+				print(f"KeyError: {e}. Handling missing key.")
+				attlog = []
+			if attlog:
+				mylist = attlog.split('\n')
+				for mydict in mylist:
+					mytlist = mydict.split('\t')
+					emp_id = mytlist[0]
+					date_time = mytlist[1]
+					log_type = mytlist[2]
+					urls = "http://192.168.1.188/api/method/jmi.biometric_checkin.mark_checkin?employee=%s&time=%s&device_id=%s&log_type=%s" % (emp_id,date_time,serial,log_type)
+					headers = { 'Content-Type': 'application/json','Authorization': 'token 2d42d97bd67d671: 8bb6689649df56c'}
+					responses = requests.request('GET',urls,headers=headers,verify=False)
+					res = json.loads(responses.text)
+					print(emp_id)
+
+@frappe.whitelist()
+def mark_attendance_new():
+	from_date = today()
+	to_date = today()
+	# from_date='2024-07-20'
+	# to_date='2024-07-20' 
+	dates = get_dates(from_date,to_date)
+	plant = ''
+	for date in dates:
+		checkin = frappe.db.sql("""select count(*) as count from `tabEmployee Checkin` where date(time) = '%s' order by time ASC """%(date),as_dict=True) 
 		checkins = frappe.db.sql("""select * from `tabEmployee Checkin` where date(time) = '%s' order by time ASC"""%(date),as_dict=True) 
 		if checkins:
 			for c in checkins:
-				print(c.name)
 				if frappe.db.exists("Employee",{'name':c.employee,'status':"Active"}):
 					att = mark_attendance_from_checkin(c.name,c.employee,c.time,c.device_id,c.log_type,plant)
 					if att:
@@ -300,100 +205,106 @@ def get_total_working_hours_jmi_plant_1_new(from_date , to_date,plant):
 		attendance = frappe.db.sql("""select docstatus,name,employee,status,shift,in_time,out_time,attendance_date,branch,designation from `tabAttendance` where attendance_date between '%s' and '%s' """%(from_date,to_date),as_dict=True)	
 	else:
 		attendance = frappe.db.sql("""select docstatus,name,employee,status,shift,in_time,out_time,attendance_date,branch,designation from `tabAttendance` where attendance_date between '%s' and '%s' and branch = '%s' """%(from_date,to_date,plant),as_dict=True)	
-
 	for att in attendance:
-		if att.branch == 'JMI Plant 1' and att.docstatus == 0:
-			if att.in_time and att.out_time:
-				str_working_hours = att.out_time - att.in_time
-				time_d_float = str_working_hours.total_seconds()
-				whrs = time_d_float/3600
-				total_working_hours = "{:.2f}".format(whrs)			
-				frappe.db.set_value('Attendance',att.name,'total_working_hours',total_working_hours) 
-				if float(total_working_hours) > 8:
-					frappe.set_value('Attendance',att.name,'status','Present')
-					over_time_hours = float(total_working_hours) - 8
-					if float(over_time_hours) >= 7:
-						over_time_hours_1 = 8
-						frappe.db.set_value('Attendance',att.name,'over_time_hours',over_time_hours_1)
-					elif float(over_time_hours)  >= 4:
-						ot = 4.50
-						frappe.db.set_value('Attendance',att.name,'over_time_hours',ot)
-					elif float(over_time_hours) >= 2:
-						over_time_hours = 2.50
-						frappe.db.set_value('Attendance',att.name,'over_time_hours',over_time_hours)
-					elif  float(over_time_hours) < 2:
-						over_time = 0
-						frappe.db.set_value('Attendance',att.name,'over_time_hours',over_time)
-				elif float(total_working_hours) < 4:
+		# print(frappe.db.exists('Employee',{'status':'Active','name':att.employee}))
+		if frappe.db.exists('Employee',{'status':'Active','name':att.employee}):
+			if att.branch == 'JMI Plant 1':
+				if att.in_time and att.out_time and att.docstatus==0:
+					str_working_hours = att.out_time - att.in_time
+					time_d_float = str_working_hours.total_seconds()
+					whrs = time_d_float/3600
+					total_working_hours = "{:.2f}".format(whrs)			
+					frappe.db.set_value('Attendance',att.name,'total_working_hours',total_working_hours) 
+					if float(total_working_hours) >= 8:
+						frappe.set_value('Attendance',att.name,'status','Present')
+						over_time_hours = float(total_working_hours) - 8
+						if float(over_time_hours) >= 7:
+							over_time_hours_1 = 7.50
+							frappe.db.set_value('Attendance',att.name,'over_time_hours',over_time_hours_1)
+						elif float(over_time_hours)  >= 4:
+							ot = 4.50
+							frappe.db.set_value('Attendance',att.name,'over_time_hours',ot)
+						elif float(over_time_hours) >= 2:
+							over_time_hours = 2.50
+							frappe.db.set_value('Attendance',att.name,'over_time_hours',over_time_hours)
+						elif  float(over_time_hours) < 2:
+							over_time = 0
+							frappe.db.set_value('Attendance',att.name,'over_time_hours',over_time)
+					elif float(total_working_hours) < 4:
+						frappe.set_value('Attendance',att.name,'status','Absent')
+					elif float (total_working_hours) >=4 and float(total_working_hours) < 7.5:
+						frappe.set_value('Attendance',att.name,'status','Half Day')
+						frappe.set_value('Attendance',att.name,'leave_type','Loss of Pay')	
+					elif float(total_working_hours) >= 7.5:
+						frappe.set_value('Attendance',att.name,'status','Present')
+				if not (att.in_time and att.out_time):
 					frappe.set_value('Attendance',att.name,'status','Absent')
-				elif float (total_working_hours) >=4 and float(total_working_hours) < 7.5:
-					frappe.set_value('Attendance',att.name,'status','Half Day')
-					frappe.set_value('Attendance',att.name,'leave_type','Loss of Pay')	
-				elif float(total_working_hours) >= 7.5:
-					frappe.set_value('Attendance',att.name,'status','Present')
-			if not (att.in_time and att.out_time):
-				frappe.set_value('Attendance',att.name,'status','Absent')
+		print(att.name)
 
 def get_total_working_hours_except_jmi_plant_1_new(from_date , to_date ,plant):
 	if plant == '':
 		attendance = frappe.db.sql("""select docstatus,name,employee,status,shift,in_time,out_time,attendance_date,branch,designation from `tabAttendance` where attendance_date between '%s' and '%s' """%(from_date,to_date),as_dict=True)	
 	else:
 		attendance = frappe.db.sql("""select docstatus,name,employee,status,shift,in_time,out_time,attendance_date,branch,designation from `tabAttendance` where attendance_date between '%s' and '%s' and branch = '%s' """%(from_date,to_date,plant),as_dict=True)	
-
 	for att in attendance:
-		if att.branch != 'JMI Plant 1' and att.docstatus == 0:
-			if att.in_time and att.out_time:
-				str_working_hours = att.out_time - att.in_time
-				time_d_float = str_working_hours.total_seconds()
-				whrs = time_d_float/3600
-				total_working_hours = "{:.2f}".format(whrs)			
-				frappe.db.set_value('Attendance',att.name,'total_working_hours',total_working_hours) 
-				if float(total_working_hours) > 8:
-					frappe.set_value('Attendance',att.name,'status','Present')
-					over_time_hours = float(total_working_hours) - 8
-					if float(over_time_hours) >= 7:
-						over_time_hours_1 = 7.5
-						frappe.db.set_value('Attendance',att.name,'over_time_hours',over_time_hours_1)
-					elif float(over_time_hours) >= 3:
-						over_time_hours = 3.50
-						frappe.db.set_value('Attendance',att.name,'over_time_hours',over_time_hours)
-					elif float(over_time_hours) < 2:
-						over_time = 0
-						frappe.db.set_value('Attendance',att.name,'over_time_hours',over_time)
-				elif float(total_working_hours) < 4:
+		if frappe.db.exists('Employee',{'status':'Active','name':att.employee}):
+			if att.branch in ('JMI Plant 2', 'JMI Plant 3', 'VCT', 'Seyoon'):
+				if att.in_time and att.out_time and att.docstatus != 2:
+					str_working_hours = att.out_time - att.in_time
+					time_d_float = str_working_hours.total_seconds()
+					whrs = time_d_float/3600
+					total_working_hours = "{:.2f}".format(whrs)			
+					frappe.db.set_value('Attendance',att.name,'total_working_hours',total_working_hours) 
+					if float(total_working_hours) >= 8:
+						frappe.set_value('Attendance',att.name,'status','Present')
+						over_time_hours = float(total_working_hours) - 8
+						if float(over_time_hours) >= 7:
+							over_time_hours_1 = 7.5
+							frappe.db.set_value('Attendance',att.name,'over_time_hours',over_time_hours_1)
+						elif float(over_time_hours) >= 4:
+							over_time_hours = 3.50
+							frappe.db.set_value('Attendance',att.name,'over_time_hours',over_time_hours)
+						elif float(over_time_hours) >= 2:
+							over_time_hours_2 = 2.50
+							frappe.db.set_value('Attendance',att.name,'over_time_hours',over_time_hours_2)
+						elif float(over_time_hours) < 2:
+							over_time = 0
+							frappe.db.set_value('Attendance',att.name,'over_time_hours',over_time)
+					elif float(total_working_hours) < 4:
+						frappe.set_value('Attendance',att.name,'status','Absent')
+					elif float (total_working_hours) >=4 and float(total_working_hours) < 7.5:
+						frappe.set_value('Attendance',att.name,'status','Half Day')
+						frappe.set_value('Attendance',att.name,'leave_type','Loss of Pay')	
+					elif float(total_working_hours) >= 7.5:
+						frappe.set_value('Attendance',att.name,'status','Present')
+				if not (att.in_time and att.out_time) and att.docstatus!=2:
 					frappe.set_value('Attendance',att.name,'status','Absent')
-				elif float (total_working_hours) >=4 and float(total_working_hours) < 7.5:
-					frappe.set_value('Attendance',att.name,'status','Half Day')
-					frappe.set_value('Attendance',att.name,'leave_type','Loss of Pay')	
-				elif float(total_working_hours) >= 7.5:
-					frappe.set_value('Attendance',att.name,'status','Present')
-			if not (att.in_time and att.out_time):
-				frappe.set_value('Attendance',att.name,'status','Absent')
+		print(att.name)
 
 def get_total_working_hours_vcp_vcr(from_date ,to_date,plant):
 	if plant == '':
 		attendance = frappe.db.sql("""select docstatus,name,employee,status,shift,in_time,out_time,attendance_date,branch,designation from `tabAttendance` where attendance_date between '%s' and '%s' """%(from_date,to_date),as_dict=True)	
 	else:
-		attendance = frappe.db.sql("""select docstatus,name,employee,status,shift,in_time,out_time,attendance_date,branch,designation from `tabAttendance` where attendance_date between '%s' and '%s' and branch = '%s' """%(from_date,to_date,plant),as_dict=True)	
+		attendance = frappe.db.sql("""select docstatus,name,employee,status,shift,in_time,out_time,attendance_date,branch,designation from `tabAttendance` where attendance_date between '%s' and '%s' and branch = '%s' """%(from_date,to_date,plant),as_dict=True)
 	for att in attendance:
-		if (att.branch == 'VCP' or att.branch == 'VCR') and att.docstatus == 0:
-			if att.in_time and att.out_time:
+		if (att.branch in ('VCP', 'VCR')):
+			if att.in_time and att.out_time and att.docstatus != 2:
 				str_working_hours = att.out_time - att.in_time
 				time_d_float = str_working_hours.total_seconds()
 				whrs = time_d_float/3600
 				total_working_hours = "{:.2f}".format(whrs)			
 				frappe.db.set_value('Attendance',att.name,'total_working_hours',total_working_hours) 
-				if float(total_working_hours) > 8:
+				if float(total_working_hours) >= 8:
 					frappe.set_value('Attendance',att.name,'status','Present')
 					over_time_hours = float(total_working_hours) - 8
 					if float(over_time_hours) >= 7:
 						over_time_hours_1 = 8
 						frappe.db.set_value('Attendance',att.name,'over_time_hours',over_time_hours_1)
-					elif float(over_time_hours) >= 3:
+					elif float(over_time_hours) >= 4:
 						over_time_hours = 4
 						frappe.db.set_value('Attendance',att.name,'over_time_hours',over_time_hours)
 					elif att.branch == 'VCP' and float(over_time_hours) >= 2:
-						over_time = 2
+						over_time = 2.50
 						frappe.db.set_value('Attendance',att.name,'over_time_hours',over_time)
 					elif float(over_time_hours) < 2:
 						over_time = 0
@@ -407,6 +318,7 @@ def get_total_working_hours_vcp_vcr(from_date ,to_date,plant):
 					frappe.set_value('Attendance',att.name,'status','Present')
 			if not (att.in_time and att.out_time):
 				frappe.set_value('Attendance',att.name,'status','Absent')
+		print(att.name)
 
 def mark_absent_employee_new(from_date, to_date ,plant):
 	to_date = datetime.strptime(str(to_date),'%Y-%m-%d').date()
@@ -446,10 +358,10 @@ def check_holiday(date,emp):
 def mark_attendance_from_checkin(checkin,employee,time,device,log_type,plant):
 	att_time = time.time()
 	att_date = time.date()
+	device_name = frappe.db.get_value('Device Details', {'device_serial_number': device}, ['device_name'])
 	if log_type == "IN":
 		shift = ''
 		shift1 = frappe.db.get_value('Shift Type',{'name':'1'},['checkin_start_time','checkin_to_time'])
-		frappe.errprint(type(shift1[0]))
 		shift2 = frappe.db.get_value('Shift Type',{'name':'2'},['checkin_start_time','checkin_to_time'])
 		shift3 = frappe.db.get_value('Shift Type',{'name':'3'},['checkin_start_time','checkin_to_time'])
 		shift4 = frappe.db.get_value('Shift Type',{'name':'4'},['checkin_start_time','checkin_to_time'])
@@ -474,23 +386,23 @@ def mark_attendance_from_checkin(checkin,employee,time,device,log_type,plant):
 		if shiftg[0].total_seconds() < att_time_seconds < shiftg[1].total_seconds():
 			shift = 'G'
 		# # All except P1
-		if device in ['BRM9203461488','BRM9193660282','BRM9211160652','BRM9222361258','BRM9222361255']:
+		if device_name in ['JMI P2 IN','JMI P3 IN','Seyoon IN','VCR IN','VCP IN']:
 			if shift5[0].total_seconds() < att_time_seconds < shift5[1].total_seconds():
 				shift = '5'
 		# # P1
-		elif device in ['BRM9222360384']:
+		elif device_name == 'JMI P1 IN':
 			if shift5p1[0].total_seconds() < att_time_seconds < shift5p1[1].total_seconds():
 				shift = '5 - P1'
 		# # Seyoon
-		elif device in ['BRM9211160652']:
+		elif device_name == 'Seyoon IN':
 			if shift6s[0].total_seconds() < att_time_seconds < shift6s[1].total_seconds():
 				shift = '6 - S'
 		# # VCR/VCR
-		elif device in ['BRM9222361258','BRM9222361255'] :
-			if device in ['BRM9222361258','BRM9222361255']:
+		elif device_name in ['VCR IN','VCP IN'] :
+			if device_name in ['VCR IN','VCP IN']:
 				if shift6v[0].total_seconds() < att_time_seconds < shift6v[1].total_seconds():
 					shift = "6 - V"
-			elif device in ['BRM9222361255']:
+			elif device_name == 'VCP IN':
 				if shift7vcp[0].total_seconds() < att_time_seconds < shift7vcp[1].total_seconds():
 					shift = "7 - VCP"
 				if shift8vcp[0].total_seconds() < att_time_seconds < shift8vcp[1].total_seconds():
@@ -503,10 +415,7 @@ def mark_attendance_from_checkin(checkin,employee,time,device,log_type,plant):
 			att.attendance_date = att_date
 			att.status = "Absent"
 			att.shift = shift
-			if len(checkins) > 0:
-				att.in_time = checkins[-1].time
-			else:
-				att.in_time = checkins[0].time
+			att.in_time = checkins[0].time
 			att.total_wh = ''
 			att.late_hours = ''
 			att.save(ignore_permissions=True)
@@ -517,78 +426,78 @@ def mark_attendance_from_checkin(checkin,employee,time,device,log_type,plant):
 			return att
 		else:
 			att = frappe.get_doc('Attendance',{'employee':employee,'attendance_date':att_date,'docstatus':('!=','2')})
-			att.employee = employee
-			att.attendance_date = att_date
-			att.status = "Absent"
-			att.shift = shift
-			if len(checkins) > 0:
-				att.in_time = checkins[-1].time
-			else:
+			if not att.attendance_regularize:
+				att.employee = employee
+				att.attendance_date = att_date
+				att.status = "Absent"
+				att.shift = shift
 				att.in_time = checkins[0].time
-			att.total_wh = ''
-			att.late_hours = ''
-			att.save(ignore_permissions=True)
-			frappe.db.commit()
-			for c in checkins:
-				frappe.db.set_value('Employee Checkin',c.name,'skip_auto_attendance','1')
-				frappe.db.set_value("Employee Checkin",c.name, "attendance", att.name)
-			return att
+				att.total_wh = ''
+				att.late_hours = ''
+				att.save(ignore_permissions=True)
+				frappe.db.commit()
+				for c in checkins:
+					frappe.db.set_value('Employee Checkin',c.name,'skip_auto_attendance','1')
+					frappe.db.set_value("Employee Checkin",c.name, "attendance", att.name)
+				return att
 		
 	elif log_type == "OUT":
-		if device in ['BRM9222360383','BRM9222360378','BRM9232760084','BRM9222360379','BRM9222361360','BRM9232260887']:
+		if device_name in ['JMI P1 OUT','JMI P2 OUT','JMI P3 OUT','VCR OUT','Seyoon OUT','VCP OUT','VCR OUT NEW']:
 			max_out = datetime.strptime('10:00:00', '%H:%M:%S').time()
+			device_id =  frappe.db.sql("""SELECT device_serial_number FROM `tabDevice Details` WHERE device_name LIKE '%OUT'""", as_dict=True) 
+			device_id_list = []
+			for d in device_id:
+				data = d.device_serial_number
+				device_id_list.append(data)
 			if att_time < max_out:
 				yesterday = add_days(att_date,-1)
-				checkins = frappe.db.sql("select name,time from `tabEmployee Checkin` where employee = '%s' and device_id in ('BRM9222360383','BRM9222360379','BRM9232760084','BRM9222361258','BRM9222361360','BRM9232260887') and date(time) = '%s' and time(time) < '%s' order by time  ASC"%(employee,att_date,max_out),as_dict=True)            
-				# print(checkins.name)
-				# print(checkins.time)
+				checkins = frappe.db.sql("select name,time from `tabEmployee Checkin` where employee = '%s' and device_id in ('CUB7242000518','BRM9222360378','BRM9232760084','BRM9222360379','BRM9222361360','BRM9232260887','BRM9222361259') and date(time) = '%s' and time(time) < '%s' order by time  ASC"%(employee,att_date,max_out),as_dict=True)            
 				att = frappe.db.exists("Attendance",{'employee':employee,'attendance_date':yesterday})
 				if att:
 					att = frappe.get_doc("Attendance",att)
 					if att.docstatus == 0:
-						if not att.out_time :
-							if att.shift == '':
-								if checkins:
-									if len(checkins) > 0:
-										att.shift = get_actual_shift(get_time(checkins[-1].time))
-										att.out_time = checkins[-1].time
-										for c in checkins:
-											frappe.db.set_value('Employee Checkin',c.name,'skip_auto_attendance','1')
-											frappe.db.set_value("Employee Checkin",c.name, "attendance", att.name)
-									else:
-										att.shift = get_actual_shift(get_time(checkins[0].time))
-										att.out_time = checkins[0].time
-										frappe.db.set_value('Employee Checkin',checkins[0].name,'skip_auto_attendance','1')
-										frappe.db.set_value("Employee Checkin",checkins[0].name, "attendance", att.name)
-							elif att.shift in['1','4']:
-								print(att.shift)
-								print(len(checkins))
-								if checkins:
-									if len(checkins) > 0:
-										att.shift = get_actual_shift(get_time(checkins[-1].time))
-										att.out_time = checkins[-1].time
-										for c in checkins:
-											frappe.db.set_value('Employee Checkin',c.name,'skip_auto_attendance','1')
-											frappe.db.set_value("Employee Checkin",c.name, "attendance", att.name)
-									else:
-										att.shift = get_actual_shift(get_time(checkins[0].time))
-										att.out_time = checkins[0].time or ''
-										frappe.db.set_value('Employee Checkin',checkins[0].name,'skip_auto_attendance','1')
-										frappe.db.set_value("Employee Checkin",checkins[0].name, "attendance", att.name)
-							else:
-								if checkins:
-									if len(checkins) > 0:
-										att.out_time = checkins[-1].time
-										for c in checkins:
-											frappe.db.set_value('Employee Checkin',c.name,'skip_auto_attendance','1')
-											frappe.db.set_value("Employee Checkin",c.name, "attendance", att.name)
-									else:
-										att.out_time = checkins[0].time
-										frappe.db.set_value('Employee Checkin',checkins[0].name,'skip_auto_attendance','1')
-										frappe.db.set_value("Employee Checkin",checkins[0].name, "attendance", att.name)
-							att.save(ignore_permissions=True)
-							frappe.db.commit()
-							return att
+						if not att.attendance_regularize:
+							if not att.out_time :
+								if att.shift == '':
+									if checkins:
+										if len(checkins) > 0:
+											att.shift = get_actual_shift(get_time(checkins[-1].time))
+											att.out_time = checkins[-1].time
+											for c in checkins:
+												frappe.db.set_value('Employee Checkin',c.name,'skip_auto_attendance','1')
+												frappe.db.set_value("Employee Checkin",c.name, "attendance", att.name)
+										else:
+											att.shift = get_actual_shift(get_time(checkins[0].time))
+											att.out_time = checkins[0].time
+											frappe.db.set_value('Employee Checkin',checkins[0].name,'skip_auto_attendance','1')
+											frappe.db.set_value("Employee Checkin",checkins[0].name, "attendance", att.name)
+								elif att.shift in['1','4']:
+									if checkins:
+										if len(checkins) > 0:
+											att.shift = get_actual_shift(get_time(checkins[-1].time))
+											att.out_time = checkins[-1].time
+											for c in checkins:
+												frappe.db.set_value('Employee Checkin',c.name,'skip_auto_attendance','1')
+												frappe.db.set_value("Employee Checkin",c.name, "attendance", att.name)
+										else:
+											att.shift = get_actual_shift(get_time(checkins[0].time))
+											att.out_time = checkins[0].time or ''
+											frappe.db.set_value('Employee Checkin',checkins[0].name,'skip_auto_attendance','1')
+											frappe.db.set_value("Employee Checkin",checkins[0].name, "attendance", att.name)
+								else:
+									if checkins:
+										if len(checkins) > 0:
+											att.out_time = checkins[-1].time
+											for c in checkins:
+												frappe.db.set_value('Employee Checkin',c.name,'skip_auto_attendance','1')
+												frappe.db.set_value("Employee Checkin",c.name, "attendance", att.name)
+										else:
+											att.out_time = checkins[0].time
+											frappe.db.set_value('Employee Checkin',checkins[0].name,'skip_auto_attendance','1')
+											frappe.db.set_value("Employee Checkin",checkins[0].name, "attendance", att.name)
+								att.save(ignore_permissions=True)
+								frappe.db.commit()
+								return att
 						else:
 							return att
 				else:
@@ -612,49 +521,50 @@ def mark_attendance_from_checkin(checkin,employee,time,device,log_type,plant):
 					frappe.db.commit()
 					return att
 			else:
-				checkins = frappe.db.sql("select name,time from `tabEmployee Checkin` where employee ='%s' and device_id in ('BRM9222360383','BRM9222360378','BRM9232760084','BRM9222361360','BRM9232260887','BRM9222360379') and date(time) = '%s' order by time ASC"%(employee,att_date),as_dict=True)
+				checkins = frappe.db.sql("select name,time from `tabEmployee Checkin` where employee ='%s' and device_id in ('CUB7242000518','BRM9222360378','BRM9232760084','BRM9222360379','BRM9222361360','BRM9232260887','BRM9222361259') and date(time) = '%s' order by time ASC"%(employee,att_date),as_dict=True)
 				att = frappe.db.exists("Attendance",{'employee':employee,'attendance_date':att_date})
 				if att:
 					att = frappe.get_doc("Attendance",att)
 					if att.docstatus == 0:
-						if not att.out_time:
-							if att.shift == '':
-								if len(checkins) > 0:
-									att.shift = get_actual_shift(get_time(checkins[-1].time))
-									att.out_time = checkins[-1].time
-									for c in checkins:
-										frappe.db.set_value('Employee Checkin',c.name,'skip_auto_attendance','1')
-										frappe.db.set_value("Employee Checkin",c.name, "attendance", att.name)
+						if not att.attendance_regularize:
+							if not att.out_time:
+								if att.shift == '':
+									if len(checkins) > 0:
+										att.shift = get_actual_shift(get_time(checkins[-1].time))
+										att.out_time = checkins[-1].time
+										for c in checkins:
+											frappe.db.set_value('Employee Checkin',c.name,'skip_auto_attendance','1')
+											frappe.db.set_value("Employee Checkin",c.name, "attendance", att.name)
+									else:
+										att.shift = get_actual_shift(get_time(checkins[0].time))
+										att.out_time = checkins[0].time
+										frappe.db.set_value('Employee Checkin',checkins[0].name,'skip_auto_attendance','1')
+										frappe.db.set_value("Employee Checkin",checkins[0].name, "attendance", att.name)
+								elif att.shift == ['1','4']:
+									if len(checkins) > 0:
+										att.shift = get_actual_shift(get_time(checkins[-1].time))
+										att.out_time = checkins[-1].time
+										for c in checkins:
+											frappe.db.set_value('Employee Checkin',c.name,'skip_auto_attendance','1')
+											frappe.db.set_value("Employee Checkin",c.name, "attendance", att.name)
+									else:
+										att.shift = get_actual_shift(get_time(checkins[0].time))
+										att.out_time = checkins[0].time
+										frappe.db.set_value('Employee Checkin',checkins[0].name,'skip_auto_attendance','1')
+										frappe.db.set_value("Employee Checkin",checkins[0].name, "attendance", att.name)
 								else:
-									att.shift = get_actual_shift(get_time(checkins[0].time))
-									att.out_time = checkins[0].time
-									frappe.db.set_value('Employee Checkin',checkins[0].name,'skip_auto_attendance','1')
-									frappe.db.set_value("Employee Checkin",checkins[0].name, "attendance", att.name)
-							elif att.shift == '1' or '4':
-								if len(checkins) > 0:
-									att.shift = get_actual_shift(get_time(checkins[-1].time))
-									att.out_time = checkins[-1].time
-									for c in checkins:
-										frappe.db.set_value('Employee Checkin',c.name,'skip_auto_attendance','1')
-										frappe.db.set_value("Employee Checkin",c.name, "attendance", att.name)
-								else:
-									att.shift = get_actual_shift(get_time(checkins[0].time))
-									att.out_time = checkins[0].time
-									frappe.db.set_value('Employee Checkin',checkins[0].name,'skip_auto_attendance','1')
-									frappe.db.set_value("Employee Checkin",checkins[0].name, "attendance", att.name)
-							else:
-								if len(checkins) > 0:
-									att.out_time = checkins[-1].time
-									for c in checkins:
-										frappe.db.set_value('Employee Checkin',c.name,'skip_auto_attendance','1')
-										frappe.db.set_value("Employee Checkin",c.name, "attendance", att.name)
-								else:
-									att.out_time = checkins[0].time
-									frappe.db.set_value('Employee Checkin',checkins[0].name,'skip_auto_attendance','1')
-									frappe.db.set_value("Employee Checkin",checkins[0].name, "attendance", att.name)
-							att.save(ignore_permissions=True)
-							frappe.db.commit()
-							return att
+									if len(checkins) > 0:
+										att.out_time = checkins[-1].time
+										for c in checkins:
+											frappe.db.set_value('Employee Checkin',c.name,'skip_auto_attendance','1')
+											frappe.db.set_value("Employee Checkin",c.name, "attendance", att.name)
+									else:
+										att.out_time = checkins[0].time
+										frappe.db.set_value('Employee Checkin',checkins[0].name,'skip_auto_attendance','1')
+										frappe.db.set_value("Employee Checkin",checkins[0].name, "attendance", att.name)
+								att.save(ignore_permissions=True)
+								frappe.db.commit()
+								return att
 						else:
 							return att
 				else:
@@ -663,7 +573,7 @@ def mark_attendance_from_checkin(checkin,employee,time,device,log_type,plant):
 					att.attendance_date = att_date
 					att.status = 'Absent'
 					if len(checkins) > 0:
-						att.shift = get_actual_shift(get_time(checkins[-1].time))
+						att.shift = get_actual_shift(get_time(checkins[0].time))
 						att.out_time = checkins[-1].time
 						for c in checkins:
 							frappe.db.set_value('Employee Checkin',c.name,'skip_auto_attendance','1')
@@ -711,7 +621,9 @@ def get_actual_shift(get_shift_time):
 	return shift   
 
 # def get_api_log():
-# 	serial_number_list=["BRM9222360384","BRM9222360383","BRM9203461488","BRM9222360378","BRM9193660282","BRM9232760084","BRM9211160652","BRM9222361360","BRM9222361258","BRM9215260842","BRM9222361257","BRM9232260887"]
+#   serial_number_list = []
+#	serial_number = frappe.db.get_all("Device Details",['*'])
+# 	serial_number_list.append(serial_number)
 # 	from_date= "2023-09-21"
 # 	to_date = '2023-10-19'
 # 	for serial in serial_number_list:
@@ -732,13 +644,11 @@ def get_actual_shift(get_shift_time):
 
 @frappe.whitelist() 
 def checkin_bulk_upload_csv():
-	# frappe.errprint("HI")
 	from frappe.utils.file_manager import get_file
 	_file = frappe.get_doc("File", {"file_name": "test393b01.csv"})
 	filepath = get_file("test393b01.csv")
 	pps = read_csv_content(filepath[1])
 	for pp in pps:
-		# print(pp[0])
 		if frappe.db.exists('Employee',{'device_code':pp[0]}):
 			if not frappe.db.exists('Employee Checkin',{'employee':pp[0],'time':pp[1]}):
 				ec = frappe.new_doc('Employee Checkin')
@@ -756,9 +666,9 @@ def checkin_bulk_upload_csv():
 				uec.time = pp[1]
 				uec.device_id = pp[3]
 				uec.log_type = 'OUT'
-				if pp[3] == "BRM9222360384":
+				if pp[3] == "BRM9232760454":
 					uec.plant_with_type == "P1 IN"
-				elif pp[3] == "BRM9222360383":
+				elif pp[3] == "CUB7242000518":
 					uec.plant_with_type == "P1 OUT" 
 				elif pp[3] == "BRM9203461488":
 					uec.plant_with_type == "P2 IN" 
@@ -782,18 +692,6 @@ def checkin_bulk_upload_csv():
 					uec.plant_with_type == "VCP OUT"
 				uec.save(ignore_permissions=True)
 				frappe.db.commit()
-				
-@frappe.whitelist()
-def update_checkin_att():
-	print("JHI")
-	checkin = frappe.db.sql("""update `tabEmployee Checkin` set attendance = '' where date(time) between "2023-12-21" and "2024-01-18" """,as_dict = True)
-	print(checkin)
-	checkin = frappe.db.sql("""update `tabEmployee Checkin` set skip_auto_attendance = 0 where date(time) between "2023-12-21" and "2024-01-18" """,as_dict = True)
-	print(checkin)
-	checkin = frappe.db.sql("""delete from `tabAttendance` where attendance_date between "2023-12-21" and "2024-01-18" """,as_dict = True)
-	print(checkin)
-	checkin = frappe.db.sql("""delete from `tabError Log` """,as_dict = True)
-	print(checkin)
 
 @frappe.whitelist()
 def cron_att_report():
@@ -828,15 +726,13 @@ def set_status(doc,method):
 		frappe.db.set_value("Employee",doc.name,'status',"Left")
 		if doc.relieving_date == '':
 			frappe.throw(_('Enter the Reliving Date'))
-	
 
 @frappe.whitelist()
-def salary_structure_assignment_val(doc,method):
-	if doc.employees:
-		for i in doc.employees:
-			ssa=frappe.db.get_all("Salary Structure Assignment",{"employee":i.employee,'from_date':['<=',doc.start_date]},['*'])
-			if not ssa:
-				frappe.throw(f"Salary structure is not assigned for employee: {i.employee}")
+def validate_salary_structure_assignment(doc, method):
+	employees = frappe.get_all("Employee", {'status': "Active", 'branch': doc.branch, 'contractor': doc.contractor, 'date_of_joining': ['<=', doc.end_date]})
+	for employee in employees:
+		if not frappe.db.exists("Salary Structure Assignment", {"employee": employee.name, 'docstatus': 1}):
+			frappe.throw(f"Salary structure is not assigned for employee: {employee.name}")
 
 @frappe.whitelist()
 def get_contractor(name):
@@ -850,3 +746,12 @@ def get_designation(name):
 	states = [state.designation for state in doc.designation]
 	return states
 
+@frappe.whitelist()
+def update_att_reg():
+	att_reg = frappe.db.sql("""SELECT * FROM `tabAttendance Regularize` WHERE attendance_date BETWEEN '2024-06-01' AND '2024-07-16'""", as_dict=True)
+	for i in att_reg:
+		attendance_regularize = i.name
+		employee = i.employee
+		att_date = i.attendance_date
+		frappe.db.sql("""UPDATE `tabAttendance` SET attendance_regularize = '%s' WHERE employee = '%s' AND attendance_date = '%s' """ %(attendance_regularize, employee, att_date))
+		
